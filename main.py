@@ -102,6 +102,8 @@ def create_audio_clip(track):
     '-i', str(track),
     '-ss', start.strip(),
     '-to', stop.strip(),
+    '-acodec', 'copy',
+    '-map_metadata', '-1',    # strip metadata
     str(clip_file)
   ]
   subprocess.call(cmd)
