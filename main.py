@@ -18,6 +18,8 @@ clip_file = here / 'clip.m4a'
 def main():
   title = sys.argv[1]
   tracks = list(music_dir.glob(f'**/*{title}*.m4a'))
+  if len(tracks) == 0:
+    tracks = list(music_dir.glob(f'**/*{title}*.mp3'))
 
   if len(tracks) == 0:
     print('No tracks found')
@@ -49,7 +51,11 @@ def process(track):
   create_audio_clip(track)
 
   # Print Chinese lyrics
-  lyrics = tags['lyrics'].replace('\r', '\n')
+  lyrics = tags.get('lyrics')
+  if not lyrics:
+    lyrics = tags.get('lyrics-eng', '')
+  lyrics = lyrics.replace('\r', '\n')
+
   print(f'\nOriginal lyrics:\n{lyrics}\n')
 
 
@@ -65,7 +71,7 @@ def fetch_lyrics(title):
     if row.chinese_title == title]
 
   if len(matching_rows) == 0:
-    print(f'No translation named {title}')
+    print(f'No entry found for {title}')
     return
 
   row = matching_rows[0]
@@ -74,6 +80,10 @@ def fetch_lyrics(title):
     fp.write(row.clip_range + '\n')
 
   print(f'Generated {clip_range_file}')
+
+  if row.translation == '':
+    print(f'No translation found for {title}')
+    return
 
   tv = client.get_collection_view(row.translation)
 
