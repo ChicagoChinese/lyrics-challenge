@@ -12,7 +12,7 @@ music_dir = Path(settings.MUSIC_DIR)
 client = NotionClient(token_v2=settings.NOTION_TOKEN)
 lyrics_file = here / 'lyrics.txt'
 clip_range_file = here / 'clip-range.txt'
-clip_file = here / 'clip.m4a'
+clip_file = here / 'clip.mp3'
 
 
 def main():
@@ -95,7 +95,7 @@ def fetch_lyrics(title):
         translation_map[row.chinese] = row.english
 
       line = row.english if row.english != '' \
-        else translation_map.get(row.chinese, '')
+        else translation_map.get(row.chinese, 'n/a')
       fp.write(line + '\n')
 
   print(f'Generated {lyrics_file}')
@@ -112,8 +112,8 @@ def create_audio_clip(track):
     '-i', str(track),
     '-ss', start.strip(),
     '-to', stop.strip(),
-    '-acodec', 'copy',
     '-map_metadata', '-1',    # strip metadata
+    # '-acodec', 'copy',      # can't be used when converting between formats
     str(clip_file)
   ]
   subprocess.call(cmd)
