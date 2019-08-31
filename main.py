@@ -12,6 +12,7 @@ music_dir = Path(settings.MUSIC_DIR)
 client = NotionClient(token_v2=settings.NOTION_TOKEN)
 lyrics_file = here / 'lyrics.txt'
 clip_range_file = here / 'clip-range.txt'
+clip_file = here / 'clip.m4a'
 
 
 def main():
@@ -49,7 +50,7 @@ def process(track):
 
   # Print Chinese lyrics
   lyrics = tags['lyrics'].replace('\r', '\n')
-  print(lyrics)
+  print(f'\nOriginal lyrics:\n{lyrics}\n')
 
 
 def fetch_lyrics(title):
@@ -72,7 +73,7 @@ def fetch_lyrics(title):
   with clip_range_file.open('w') as fp:
     fp.write(row.clip_range + '\n')
 
-  print(f'Wrote clip range to clip-range.txt')
+  print(f'Generated {clip_range_file}')
 
   tv = client.get_collection_view(row.translation)
 
@@ -87,12 +88,25 @@ def fetch_lyrics(title):
         else translation_map.get(row.chinese, '')
       fp.write(line + '\n')
 
-  print(f'Wrote lyrics to lyrics.txt')
+  print(f'Generated {lyrics_file}')
 
 
 def create_audio_clip(track):
-  # Fetch clip range from notion
-  pass
+  if clip_file.exists():
+    return
+
+  start, stop = clip_range_file.read_text().strip().split('-')
+
+  cmd = [
+    'ffmpeg',
+    '-i', str(track),
+    '-ss', start.strip(),
+    '-to', stop.strip(),
+    str(clip_file)
+  ]
+  subprocess.call(cmd)
+
+  print(f'Generated {clip_file}')
 
 
 if __name__ == '__main__':
