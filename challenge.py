@@ -30,8 +30,10 @@ def generate_challenge(title):
     print('No tracks found')
   elif len(tracks) > 1:
     print('Found more than one track:')
-    for track in tracks:
-      print(track)
+    for i, track in enumerate(tracks, 1):
+      print(f'{i}. {track}')
+    choice = int(input('Which one do you want? '))
+    process(tracks[choice - 1])
   else:
     process(tracks[0])
 
