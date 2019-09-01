@@ -1,22 +1,27 @@
-import sys
 import subprocess
 import json
 from pathlib import Path
 
 from notion.client import NotionClient
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+env = Environment(
+    loader=FileSystemLoader('templates'),
+    autoescape=select_autoescape(['html', 'xml'])
+)
 
 import settings
 
 here = Path(__file__).parent
 music_dir = Path(settings.MUSIC_DIR)
 client = NotionClient(token_v2=settings.NOTION_TOKEN)
-lyrics_file = here / 'lyrics.txt'
+lyrics_file = here / 'lyrics.html'
 clip_range_file = here / 'clip-range.txt'
 clip_file = here / 'clip.mp3'
 
+lyrics_template = env.get_template('lyrics.html')
 
-def main():
-  title = sys.argv[1]
+
+def generate_challenge(title):
   tracks = list(music_dir.glob(f'**/*{title}*.m4a'))
   if len(tracks) == 0:
     tracks = list(music_dir.glob(f'**/*{title}*.mp3'))
@@ -44,19 +49,16 @@ def process(track):
   meta = json.loads(subprocess.check_output(cmd))
   tags = meta['format']['tags']
 
-  # Get translated english lyrics
   fetch_lyrics(tags['title'])
 
-  # todo: Create audio clip
   create_audio_clip(track)
 
   # Print Chinese lyrics
-  lyrics = tags.get('lyrics')
-  if not lyrics:
-    lyrics = tags.get('lyrics-eng', '')
-  lyrics = lyrics.replace('\r', '\n')
-
-  print(f'\nOriginal lyrics:\n{lyrics}\n')
+  # lyrics = tags.get('lyrics')
+  # if not lyrics:
+  #   lyrics = tags.get('lyrics-eng', '')
+  # lyrics = lyrics.replace('\r', '\n')
+  # print(f'\nOriginal lyrics:\n{lyrics}\n')
 
 
 def fetch_lyrics(title):
@@ -85,18 +87,24 @@ def fetch_lyrics(title):
     print(f'No translation found for {title}')
     return
 
+  print(row.english_title + '\n')
+
   tv = client.get_collection_view(row.translation)
 
-  translation_map = {}
+  translation_map = {'': ''}
 
   with lyrics_file.open('w') as fp:
+    lyrics = []
     for row in tv.default_query().execute():
       if row.english:
         translation_map[row.chinese] = row.english
 
       line = row.english if row.english != '' \
         else translation_map.get(row.chinese, 'n/a')
-      fp.write(line + '\n')
+      lyrics.append(line)
+
+    html = lyrics_template.render(lyrics=lyrics)
+    fp.write(html)
 
   print(f'Generated {lyrics_file}')
 
@@ -105,7 +113,11 @@ def create_audio_clip(track):
   if clip_file.exists():
     return
 
-  start, stop = clip_range_file.read_text().strip().split('-')
+  try:
+    start, stop = clip_range_file.read_text().strip().split('-')
+  except Exception as ex:
+    print(f'Invalid clip range: {ex}')
+    return
 
   cmd = [
     'ffmpeg',

@@ -9,6 +9,8 @@ ipdb = "*"
 
 [packages]
 notion = "*"
+invoke = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"

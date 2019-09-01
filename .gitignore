@@ -2,6 +2,6 @@
 settings.py
 
 # output
-lyrics.txt
+lyrics.html
 clip-range.txt
 clip.mp3
