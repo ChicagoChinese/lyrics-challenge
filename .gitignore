@@ -2,6 +2,7 @@
 settings.py
 
 # output
-lyrics.html
+challenge.html
+answer.html
 clip-range.txt
 clip.mp3

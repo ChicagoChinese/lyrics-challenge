@@ -14,28 +14,44 @@ import settings
 here = Path(__file__).parent
 music_dir = Path(settings.MUSIC_DIR)
 client = NotionClient(token_v2=settings.NOTION_TOKEN)
-lyrics_file = here / 'lyrics.html'
+challenge_file = here / 'challenge.html'
+answer_file = here / 'answer.html'
 clip_range_file = here / 'clip-range.txt'
 clip_file = here / 'clip.mp3'
 
-lyrics_template = env.get_template('lyrics.html')
-
 
 def generate_challenge(title):
+  track = get_track(title)
+  process(track)
+
+
+def generate_answer(title):
+  track = get_track(title)
+
+  row = get_song_row(title)
+
+  with answer_file.open('w') as fp:
+    lyrics = row.lyrics.splitlines()
+    html = env.get_template('answer.html').render(song=row, lyrics=lyrics)
+    fp.write(html)
+
+
+def get_track(title):
   tracks = list(music_dir.glob(f'**/*{title}*.m4a'))
   if len(tracks) == 0:
     tracks = list(music_dir.glob(f'**/*{title}*.mp3'))
 
   if len(tracks) == 0:
     print('No tracks found')
+    return None
   elif len(tracks) > 1:
     print('Found more than one track:')
     for i, track in enumerate(tracks, 1):
       print(f'{i}. {track}')
     choice = int(input('Which one do you want? '))
-    process(tracks[choice - 1])
+    return tracks[choice -1]
   else:
-    process(tracks[0])
+    return tracks[0]
 
 
 def process(track):
@@ -64,21 +80,12 @@ def process(track):
 
 
 def fetch_lyrics(title):
-  if lyrics_file.exists() and clip_range_file.exists():
+  if challenge_file.exists() and clip_range_file.exists():
     return
 
   index_page = client.get_block(settings.TRANSLATION_INDEX)
 
-  matching_rows = [
-    row
-    for row in index_page.collection.get_rows()
-    if row.chinese_title == title]
-
-  if len(matching_rows) == 0:
-    print(f'No entry found for {title}')
-    return
-
-  row = matching_rows[0]
+  row = get_song_row(title)
 
   with clip_range_file.open('w') as fp:
     fp.write(row.clip_range + '\n')
@@ -95,7 +102,7 @@ def fetch_lyrics(title):
 
   translation_map = {'': ''}
 
-  with lyrics_file.open('w') as fp:
+  with challenge_file.open('w') as fp:
     lyrics = []
     for row in tv.default_query().execute():
       if row.english:
@@ -105,10 +112,25 @@ def fetch_lyrics(title):
         else translation_map.get(row.chinese, 'n/a')
       lyrics.append(line)
 
-    html = lyrics_template.render(lyrics=lyrics)
+    html = env.get_template('challenge.html').render(lyrics=lyrics)
     fp.write(html)
 
-  print(f'Generated {lyrics_file}')
+  print(f'Generated {challenge_file}')
+
+
+def get_song_row(title):
+  index_page = client.get_block(settings.TRANSLATION_INDEX)
+
+  matching_rows = [
+    row
+    for row in index_page.collection.get_rows()
+    if row.chinese_title == title]
+
+  if len(matching_rows) == 0:
+    print(f'No entry found for {title}')
+    return None
+  else:
+    return matching_rows[0]
 
 
 def create_audio_clip(track):
