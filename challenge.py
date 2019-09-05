@@ -26,7 +26,8 @@ clip_file = here / 'clip.mp3'
 
 def generate_challenge(title):
   track = get_track(title)
-  process(track)
+  if track:
+    process(track)
 
 
 def generate_answer(title):
@@ -105,7 +106,8 @@ def fetch_lyrics(title):
     print(f'No translation found for {title}')
     return
 
-  print(row.english_title + '\n')
+  title = row.english_title
+  print(title + '\n')
 
   tv = client.get_collection_view(row.translation)
 
@@ -118,10 +120,11 @@ def fetch_lyrics(title):
         translation_map[row.chinese] = row.english
 
       line = row.english if row.english != '' \
-        else translation_map.get(row.chinese, 'n/a')
+        else translation_map.get(row.chinese, f'not found: "{row.chinese}"')
       lyrics.append(line)
 
-    html = env.get_template('challenge.html').render(lyrics=lyrics)
+    html = env.get_template('challenge.html').render(
+      title=title, lyrics=lyrics)
     fp.write(html)
 
   print(f'Generated {challenge_file}')
