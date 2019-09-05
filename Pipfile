@@ -11,6 +11,7 @@ ipdb = "*"
 notion = "*"
 invoke = "*"
 jinja2 = "*"
+markdown2 = "*"
 
 [requires]
 python_version = "3.7"

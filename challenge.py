@@ -2,14 +2,18 @@ import subprocess
 import json
 from pathlib import Path
 
+import markdown2
 from notion.client import NotionClient
 from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+import settings
+
+
 env = Environment(
     loader=FileSystemLoader('templates'),
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-import settings
 
 here = Path(__file__).parent
 music_dir = Path(settings.MUSIC_DIR)
@@ -32,8 +36,13 @@ def generate_answer(title):
 
   with answer_file.open('w') as fp:
     lyrics = row.lyrics.splitlines()
-    html = env.get_template('answer.html').render(song=row, lyrics=lyrics)
+    # Strip off <p></p>:
+    related_works = markdown2.markdown(row.related_works)[3:-5]
+    html = env.get_template('answer.html').render(
+      song=row, lyrics=lyrics, related_works=related_works)
     fp.write(html)
+
+  print(f'Generated {answer_file}')
 
 
 def get_track(title):
