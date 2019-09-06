@@ -32,8 +32,13 @@ def generate_challenge(title):
 
 def generate_answer(title):
   track = get_track(title)
+  if not track:
+    return
 
-  row = get_song_row(title)
+  print(f'Processing {track}\n')
+  meta = get_track_meta(track)
+
+  row = get_song_row(meta['title'])
 
   with answer_file.open('w') as fp:
     lyrics = row.lyrics.splitlines()
@@ -48,8 +53,7 @@ def generate_answer(title):
 
 def get_track(title):
   tracks = list(music_dir.glob(f'**/*{title}*.m4a'))
-  if len(tracks) == 0:
-    tracks = list(music_dir.glob(f'**/*{title}*.mp3'))
+  tracks += list(music_dir.glob(f'**/*{title}*.mp3'))
 
   if len(tracks) == 0:
     print('No tracks found')
@@ -59,14 +63,19 @@ def get_track(title):
     for i, track in enumerate(tracks, 1):
       print(f'{i}. {track}')
     choice = int(input('Which one do you want? '))
-    return tracks[choice -1]
+    return tracks[choice - 1]
   else:
     return tracks[0]
 
 
 def process(track):
   print(f'Processing {track}\n')
+  tags = get_track_meta(track)
+  fetch_lyrics(tags['title'])
+  create_audio_clip(track)
 
+
+def get_track_meta(track):
   cmd = [
     'ffprobe',
     '-v', 'quiet',
@@ -75,18 +84,7 @@ def process(track):
     '-print_format', 'json',
   ]
   meta = json.loads(subprocess.check_output(cmd))
-  tags = meta['format']['tags']
-
-  fetch_lyrics(tags['title'])
-
-  create_audio_clip(track)
-
-  # Print Chinese lyrics
-  # lyrics = tags.get('lyrics')
-  # if not lyrics:
-  #   lyrics = tags.get('lyrics-eng', '')
-  # lyrics = lyrics.replace('\r', '\n')
-  # print(f'\nOriginal lyrics:\n{lyrics}\n')
+  return meta['format']['tags']
 
 
 def fetch_lyrics(title):
