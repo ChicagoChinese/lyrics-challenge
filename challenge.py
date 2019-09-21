@@ -26,29 +26,15 @@ clip_file = here / 'clip.mp3'
 
 def generate_challenge(title):
   track = get_track(title)
-  if track:
-    process(track)
-
-
-def generate_answer(title):
-  track = get_track(title)
   if not track:
     return
 
   print(f'Processing {track}\n')
-  meta = get_track_meta(track)
-
-  row = get_song_row(meta['title'])
-
-  with answer_file.open('w') as fp:
-    lyrics = row.lyrics.splitlines()
-    # Strip off <p></p>:
-    related_works = markdown2.markdown(row.related_works)[3:-5]
-    html = env.get_template('answer.html').render(
-      song=row, lyrics=lyrics, related_works=related_works)
-    fp.write(html)
-
-  print(f'Generated {answer_file}')
+  tags = get_track_meta(track)
+  row = fetch_song_row(tags['title'])
+  generate_clip_range_file(row)
+  create_audio_clip(track)
+  generate_challenge_file(row)
 
 
 def get_track(title):
@@ -68,13 +54,6 @@ def get_track(title):
     return tracks[0]
 
 
-def process(track):
-  print(f'Processing {track}\n')
-  tags = get_track_meta(track)
-  fetch_lyrics(tags['title'])
-  create_audio_clip(track)
-
-
 def get_track_meta(track):
   cmd = [
     'ffprobe',
@@ -87,49 +66,54 @@ def get_track_meta(track):
   return meta['format']['tags']
 
 
-def fetch_lyrics(title):
-  if challenge_file.exists() and clip_range_file.exists():
+def generate_clip_range_file(row):
+  if clip_range_file.exists():
     return
-
-  index_page = client.get_block(settings.TRANSLATION_INDEX)
-
-  row = get_song_row(title)
 
   with clip_range_file.open('w') as fp:
     fp.write(row.clip_range + '\n')
 
   print(f'Generated {clip_range_file}')
 
-  if row.translation == '':
-    print(f'No translation found for {title}')
+
+def generate_challenge_file(song):
+  if challenge_file.exists():
     return
 
-  title = row.english_title
-  print(title + '\n')
+  english_lyrics = []
 
-  tv = client.get_collection_view(row.translation)
+  if song.translation == '':
+    print(f'No translation found for {title}')
+  else:
+    tv = client.get_collection_view(song.translation)
+    translation_map = {'': ''}
+    english_lyrics = []
 
-  translation_map = {'': ''}
-
-  with challenge_file.open('w') as fp:
-    lyrics = []
     for row in tv.default_query().execute():
       if row.english:
         translation_map[row.chinese] = row.english
 
       line = row.english if row.english != '' \
         else translation_map.get(row.chinese, f'not found: "{row.chinese}"')
-      lyrics.append(line)
+      english_lyrics.append(line)
+
+  with challenge_file.open('w') as fp:
+    chinese_lyrics = song.lyrics.splitlines()
+    # Strip off <p></p>:
+    related_works = markdown2.markdown(song.related_works)[3:-5]
 
     html = env.get_template('challenge.html').render(
-      title=title, lyrics=lyrics)
+      song=song, english_lyrics=english_lyrics, chinese_lyrics=chinese_lyrics,
+      related_works=related_works)
+
     fp.write(html)
 
   print(f'Generated {challenge_file}')
 
 
-def get_song_row(title):
-  index_page = client.get_block(settings.TRANSLATION_INDEX)
+
+def fetch_song_row(title):
+  index_page = client.get_block(settings.CHALLENGE_TABLE)
 
   matching_rows = [
     row

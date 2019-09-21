@@ -1,3 +1,3 @@
 # Todo
 
-- Generate spoiler html as well
+- Generate answer as part of the challenge post

@@ -14,18 +14,16 @@ pipenv install
 
 ## Commands
 
-Generate exercise
+Generate challenge
 
 ```
-python main.py 要死就一定死在你手里
+inv challenge 要死就一定死在你手里
 ```
 
 Clean output files
 
 ```
-rm clip-range.txt
-rm clip.m4a
-rm lyrics.txt
+inv clean
 ```
 
 ## Configuration

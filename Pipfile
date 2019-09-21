@@ -12,6 +12,7 @@ notion = "*"
 invoke = "*"
 jinja2 = "*"
 markdown2 = "*"
+pyobjc = "*"
 
 [requires]
 python_version = "3.7"

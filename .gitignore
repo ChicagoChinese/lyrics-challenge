@@ -3,6 +3,5 @@ settings.py
 
 # output
 challenge.html
-answer.html
 clip-range.txt
 clip.mp3
