@@ -1,5 +1,5 @@
 .DS_Store
-settings.py
+secrets.py
 
 # output
 challenge.html
