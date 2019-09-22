@@ -1,3 +1,7 @@
+"""
+PYTHONPATH=. python scripts/generate_lyrics_page.py
+
+"""
 import json
 from pathlib import Path
 import time
