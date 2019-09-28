@@ -1,7 +1,7 @@
 try:
   from secrets import NOTION_TOKEN
 except:
-  NOTION_TOKEN = ''
+  raise 'No secrets module found'
 
 MUSIC_DIR = '/Users/fhsu/Music/hanyu'
 

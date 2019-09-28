@@ -14,3 +14,9 @@ def clean(ctx):
   for file_ in (challenge_file, clip_range_file, clip_file):
     if file_.exists():
       os.remove(file_)
+
+
+@task
+def csv(ctx, url):
+  from generate import generate_lyrics_csv_file
+  generate_lyrics_csv_file(url)
