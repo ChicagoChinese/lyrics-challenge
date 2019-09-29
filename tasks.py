@@ -17,6 +17,6 @@ def clean(ctx):
 
 
 @task
-def csv(ctx, url):
+def csv(ctx, url=None):
   from generate import generate_lyrics_csv_file
   generate_lyrics_csv_file(url)
