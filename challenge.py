@@ -4,6 +4,7 @@ from pathlib import Path
 
 import markdown2
 from notion.client import NotionClient
+from notion.block import PageBlock, TextBlock
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 import settings
@@ -35,6 +36,24 @@ def generate_challenge(title):
   generate_clip_range_file(row)
   create_audio_clip(track)
   generate_challenge_file(row)
+
+
+def add_lyrics(title):
+  track = get_track(title)
+  if track is None:
+    return
+
+  print(track)
+
+  root = client.get_block(settings.LYRICS_ROOT)
+
+  meta = get_track_meta(track)
+  lyrics = meta.get('lyrics', '').split('\r')
+
+  child = root.children.add_new(PageBlock, title=meta['title'])
+  for line in lyrics:
+    child.children.add_new(TextBlock, title=line)
+    print(line)
 
 
 def get_track(title):

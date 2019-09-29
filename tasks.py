@@ -25,3 +25,9 @@ def clean(ctx):
 def csv(ctx, url):
   from generate import generate_lyrics_csv_file
   generate_lyrics_csv_file(url)
+
+
+@task
+def lyrics(ctx, title):
+  from challenge import add_lyrics
+  add_lyrics(title)

@@ -13,14 +13,11 @@ import settings
 import challenge
 
 
-LYRICS_ROOT = 'https://www.notion.so/megafeihong/Lyrics-39b0f78c2f9b413dbda535e52ed20f41'
-
-
 if __name__ == '__main__':
   tracks = json.loads(Path('project.json').read_text())
   client = NotionClient(token_v2=settings.NOTION_TOKEN)
 
-  root = client.get_block(LYRICS_ROOT)
+  root = client.get_block(settings.LYRICS_ROOT)
 
   for track in tracks:
     print(track['index'])
