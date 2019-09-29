@@ -1,4 +1,6 @@
 import os
+from pathlib import Path
+
 from invoke import task
 
 
@@ -15,8 +17,11 @@ def clean(ctx):
     if file_.exists():
       os.remove(file_)
 
+  for file_ in Path('.').glob('*.csv'):
+    os.remove(file_)
+
 
 @task
-def csv(ctx, url=None):
+def csv(ctx, url):
   from generate import generate_lyrics_csv_file
   generate_lyrics_csv_file(url)

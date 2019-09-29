@@ -1,5 +1,5 @@
 """
-PYTHONPATH=. python scripts/generate_lyrics_page.py
+PYTHONPATH=. python scripts/generate_lyrics_pages.py
 
 """
 import json
@@ -13,7 +13,7 @@ import settings
 import challenge
 
 
-LYRICS_ROOT = 'https://www.notion.so/chicagochinese/Lyrics-39b0f78c2f9b413dbda535e52ed20f41'
+LYRICS_ROOT = 'https://www.notion.so/megafeihong/Lyrics-39b0f78c2f9b413dbda535e52ed20f41'
 
 
 if __name__ == '__main__':
