@@ -5,12 +5,12 @@ from invoke import task
 
 
 @task
-def challenge(ctx, title):
+def challenge(ctx, url):
   """
-  Generate challenge for paste into ChineseForums.com
+  Generate challenge for pasting into ChineseForums.com
   """
   from challenge import generate_challenge
-  generate_challenge(title)
+  generate_challenge(url)
 
 
 @task
@@ -18,8 +18,8 @@ def clean(ctx):
   """
   Clean files
   """
-  from challenge import challenge_file, clip_range_file, clip_file
-  for file_ in (challenge_file, clip_range_file, clip_file):
+  from challenge import challenge_file, clip_file
+  for file_ in (challenge_file, clip_file):
     if file_.exists():
       os.remove(file_)
 

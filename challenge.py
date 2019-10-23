@@ -15,27 +15,26 @@ env = Environment(
     autoescape=select_autoescape(['html', 'xml'])
 )
 
-
 here = Path(__file__).parent
 music_dir = Path(settings.MUSIC_DIR)
 client = NotionClient(token_v2=settings.NOTION_TOKEN)
 challenge_file = here / 'challenge.html'
-answer_file = here / 'answer.html'
-clip_range_file = here / 'clip-range.txt'
 clip_file = here / 'clip.mp3'
 
 
-def generate_challenge(title):
-  track = get_track(title)
+def generate_challenge(url):
+  page = client.get_block(url)
+  view = client.get_collection_view(url, collection=page.collection)
+
+  track = get_track(page.title)
   if not track:
+    print(f'Could not find {track}')
     return
 
   print(f'Processing {track}\n')
-  tags = get_track_meta(track)
-  row = fetch_song_row(tags['title'])
-  generate_clip_range_file(row)
-  create_audio_clip(track)
-  generate_challenge_file(row)
+  meta = get_page_meta(page)
+  create_audio_clip(track, meta['clip_range'])
+  generate_challenge_file(view, meta)
 
 
 def add_lyrics(title):
@@ -85,50 +84,56 @@ def get_track_meta(track):
   return meta['format']['tags']
 
 
-def generate_clip_range_file(row):
-  if clip_range_file.exists():
-    return
+def get_page_meta(page):
+  lines = page.description.splitlines()
+  meta = {}
+  for line in lines:
+    key, value = line.split('=', 1)
+    key = key.strip()
+    meta[key] = value.strip()
 
-  with clip_range_file.open('w') as fp:
-    fp.write(row.clip_range + '\n')
+  meta['title'] = page.title
+  meta['url'] = page.get_browseable_url()
+  return meta
 
-  print(f'Generated {clip_range_file}')
+
+def markdown(text):
+  # Strip off <p></p>:
+  return markdown2.markdown(text)[3:-5]
 
 
-def generate_challenge_file(song):
-  if challenge_file.exists():
-    return
+def generate_challenge_file(view, meta):
+  meta['link'] = markdown(meta['link'])
 
+  chinese_lyrics = []
   english_lyrics = []
 
-  if song.translation == '':
-    print(f'No translation found for {title}')
-  else:
-    tv = client.get_collection_view(song.translation)
-    translation_map = {'': ''}
-    english_lyrics = []
+  translation_map = {'': ''}
+  english_lyrics = []
 
-    for row in tv.default_query().execute():
-      if row.english:
-        translation_map[row.chinese] = row.english
+  for row in view.default_query().execute():
+    chinese_lyrics.append(row.chinese)
 
-      line = row.english if row.english != '' \
-        else translation_map.get(row.chinese, f'not found: "{row.chinese}"')
-      english_lyrics.append(line)
+    if row.english:
+      translation_map[row.chinese] = row.english
+
+    line = row.english if row.english != '' \
+      else translation_map.get(row.chinese, f'not found: "{row.chinese}"')
+    english_lyrics.append(line)
 
   with challenge_file.open('w') as fp:
-    chinese_lyrics = song.lyrics.splitlines()
-    # Strip off <p></p>:
-    related_works = markdown2.markdown(song.related_works)[3:-5]
+    related_works = meta.get('related_works')
+    if related_works is not None:
+
+      related_works = markdown(related_works)
 
     html = env.get_template('challenge.html').render(
-      song=song, english_lyrics=english_lyrics, chinese_lyrics=chinese_lyrics,
+      song=meta, english_lyrics=english_lyrics, chinese_lyrics=chinese_lyrics,
       related_works=related_works)
 
     fp.write(html)
 
-  print(f'Generated {challenge_file}')
-
+    print(f'Generated {challenge_file}')
 
 
 def fetch_song_row(title):
@@ -146,12 +151,12 @@ def fetch_song_row(title):
     return matching_rows[0]
 
 
-def create_audio_clip(track):
+def create_audio_clip(track, clip_range_text):
   if clip_file.exists():
     return
 
   try:
-    start, stop = clip_range_file.read_text().strip().split('-')
+    start, stop = clip_range_text.strip().split('-')
   except Exception as ex:
     print(f'Invalid clip range: {ex}')
     return

@@ -3,6 +3,5 @@ secrets.py
 
 # output
 challenge.html
-clip-range.txt
 clip.mp3
 *.csv
