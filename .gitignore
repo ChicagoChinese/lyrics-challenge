@@ -2,6 +2,6 @@
 secrets.py
 
 # output
-challenge.html
-clip.mp3
-*.csv
+/challenge.html
+/clip.mp3
+/*.csv

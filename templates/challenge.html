@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Lyrics</title>
+</head>
+
+<body>
+  Challenge #00: {{ song.english_tagline }}
+  <br>
+  <br>
+
+  Use the translated English lyrics below to find the title and artist of the song. Bonus points for providing a
+  video or audio link. A short audio clip is provided as an additional hint, should you need it.
+  <br>
+  <br>
+  <hr>
+  <br>
+
+  {% for line in english_lyrics %}
+  {{ line }}<br>
+  {% endfor %}
+
+  <br>
+  <hr>
+  <br>
+  Answer
+  <br>
+
+  <strong>Title</strong>: {{ song.title }}
+  <br>
+  <strong>Artist</strong>: {{ song.artist }}
+  <br>
+  <strong>Link</strong>: {{ song.link|safe }}
+  <br>
+  <strong>Translation</strong>: {{ song.url }}
+  {% if related_works %}
+  <br>
+  <strong>Related works</strong>: {{ related_works|safe }}
+  {% endif %}
+
+  <h2>Chinese lyrics</h2>
+  {% for line in chinese_lyrics %}
+  {{ line }}<br>
+  {% endfor %}
+
+</body>
+
+</html>
