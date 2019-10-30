@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 ipython = "*"
 ipdb = "*"
+pylint = "*"
+autopep8 = "*"
 
 [packages]
 notion = "*"
