@@ -50,14 +50,19 @@ def add_lyrics(title):
     lyrics = meta.get('lyrics', '')
     if lyrics == '':
         lyrics = meta.get('lyrics-eng', '')
-    lyrics = lyrics.split('\r')
+
+    lyrics = [
+        'artist = ' + meta['artist'],
+        'link = ' + meta['comment'],
+        '===',
+    ] + lyrics.split('\r')
 
     child = root.children.add_new(PageBlock, title=meta['title'])
     for line in lyrics:
         child.children.add_new(TextBlock, title=line)
         print(line)
 
-    print(f'Lyrics published to {child.get_browseable_url()}')
+    print(f'\nLyrics published to {child.get_browseable_url()}')
 
 
 def get_track(title):
