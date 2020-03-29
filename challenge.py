@@ -128,7 +128,7 @@ def generate_challenge_file(view, meta):
             translation_map[row.chinese] = row.english
 
         line = row.english if row.english != '' \
-            else translation_map.get(row.chinese, f'not found: "{row.chinese}"')
+            else translation_map.get(row.chinese, row.chinese)
         english_lyrics.append(line)
 
     with challenge_file.open('w') as fp:
