@@ -28,7 +28,7 @@ def generate_challenge(url):
 
     track = get_track(page.title)
     if not track:
-        print(f'Could not find {track}')
+        print(f'Could not find track for {page.title}')
         return
 
     print(f'Processing {track}\n')
