@@ -30,7 +30,7 @@ def clean(ctx):
 @task
 def csv(ctx, url):
     """
-    Generate translation CSV file for import into Notion
+    Export lyrics page to CSV
     """
     from generate import generate_lyrics_csv_file
     generate_lyrics_csv_file(url)
