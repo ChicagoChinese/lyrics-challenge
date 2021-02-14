@@ -118,11 +118,11 @@ def generate_challenge_file(view, meta):
     chinese_lyrics = []
     english_lyrics = []
 
-    translation_map = {'': ''}
+    translation_map = {'': '', '_': ''}
     english_lyrics = []
 
     for row in view.default_query().execute():
-        chinese_lyrics.append(row.chinese)
+        chinese_lyrics.append(row.chinese if row.chinese != '_' else '')
 
         if row.english:
             translation_map[row.chinese] = row.english
