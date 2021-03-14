@@ -37,6 +37,15 @@ def csv(ctx, url):
 
 
 @task
+def txt2csv(ctx):
+    """
+    Convert lyrics text file to CSV
+    """
+    from generate import generate_lyrics_csv_file_from_text
+    generate_lyrics_csv_file_from_text()
+
+
+@task
 def lyrics(ctx, title):
     """
     Add lyrics into Notion
