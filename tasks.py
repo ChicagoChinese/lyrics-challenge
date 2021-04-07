@@ -46,6 +46,15 @@ def txt2csv(ctx):
 
 
 @task
+def zhongying(ctx):
+    """
+    Convert Chinese text file to CSV
+    """
+    from generate import generate_zhong_ying_csv_file_from_text
+    generate_zhong_ying_csv_file_from_text()
+
+
+@task
 def lyrics(ctx, title):
     """
     Add lyrics into Notion

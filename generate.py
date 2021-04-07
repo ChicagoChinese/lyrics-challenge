@@ -9,6 +9,29 @@ from notion.client import NotionClient
 import settings
 
 
+def generate_zhong_ying_csv_file_from_text():
+    text = subprocess.check_output('pbpaste').decode()
+    title = input("Title: ")
+
+    parts = re.split(r'={3,}', text)
+    text = parts[1].strip() if len(parts) > 1 else parts[0]
+
+    print(text)
+
+    output_file = Path(title + '.csv')
+
+    with output_file.open('w') as fp:
+        writer = csv.writer(fp)
+        writer.writerow(['Chinese', 'English', 'Annotation'])
+        for line in text.splitlines():
+            if line.strip() == '':
+                line = '_'
+
+            writer.writerow([line, '', ''])
+
+    print(f'\nGenerated {output_file}')
+
+
 def generate_lyrics_csv_file_from_text():
     # input_file = Path(input_file)
     # text = input_file.read_text()
