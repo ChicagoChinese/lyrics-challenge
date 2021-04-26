@@ -17,9 +17,13 @@ env = Environment(
 
 here = Path(__file__).parent
 music_dir = Path(settings.MUSIC_DIR)
-client = NotionClient(token_v2=settings.NOTION_TOKEN)
 challenge_file = here / 'challenge.html'
 clip_file = here / 'clip.mp3'
+
+try:
+  client = NotionClient(token_v2=settings.NOTION_TOKEN)
+except:
+  client = None
 
 
 def generate_challenge(url):

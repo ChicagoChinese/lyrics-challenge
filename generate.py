@@ -12,9 +12,11 @@ import settings
 def generate_zhong_ying_csv_file_from_text():
     text = subprocess.check_output('pbpaste').decode()
     title = input("Title: ")
+    if title.strip() == '':
+        title = 'Unknown title'
 
-    parts = re.split(r'={3,}', text)
-    text = parts[1].strip() if len(parts) > 1 else parts[0]
+    lines = [line.strip() for line in text.splitlines()]
+    text = '\n'.join(lines)
 
     print(text)
 

@@ -19,12 +19,13 @@ def clean(ctx):
     Clean files
     """
     from challenge import challenge_file, clip_file
-    for file_ in (challenge_file, clip_file):
-        if file_.exists():
-            os.remove(file_)
 
     for file_ in Path('.').glob('*.csv'):
         os.remove(file_)
+
+    for file_ in (challenge_file, clip_file):
+        if file_.exists():
+            os.remove(file_)
 
 
 @task
