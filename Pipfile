@@ -10,11 +10,11 @@ pylint = "*"
 autopep8 = "*"
 
 [packages]
-notion = "*"
 invoke = "*"
 jinja2 = "*"
+notion = "*"
+notion-client = "*"
 markdown2 = "*"
-pyobjc = "*"
 
 [requires]
 python_version = "3.8"
