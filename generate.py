@@ -4,7 +4,7 @@ import json
 import subprocess
 from pathlib import Path
 
-from notion.client import NotionClient
+from notion_readonly.client import NotionClient
 
 import settings
 
@@ -60,7 +60,7 @@ def generate_lyrics_csv_file_from_text():
 
 
 def generate_lyrics_csv_file(url):
-    client = NotionClient(token_v2=settings.NOTION_TOKEN)
+    client = NotionClient()
 
     page = client.get_block(url)
 

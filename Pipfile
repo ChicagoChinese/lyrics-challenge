@@ -12,8 +12,8 @@ autopep8 = "*"
 [packages]
 invoke = "*"
 jinja2 = "*"
-notion = "*"
 notion-client = "*"
+notion-readonly = "*"
 markdown2 = "*"
 
 [requires]

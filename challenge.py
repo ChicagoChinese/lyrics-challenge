@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 import markdown2
-from notion.client import NotionClient
+from notion_readonly.client import NotionClient
 from notion.block import PageBlock, TextBlock
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
@@ -16,12 +16,12 @@ env = Environment(
 )
 
 here = Path(__file__).parent
-music_dir = Path(settings.MUSIC_DIR)
+music_dir = Path(settings.MUSIC_DIR).expanduser()
 challenge_file = here / 'challenge.html'
 clip_file = here / 'clip.mp3'
 
 try:
-  client = NotionClient(token_v2=settings.NOTION_TOKEN)
+  client = NotionClient()
 except:
   client = None
 
